@@ -50,6 +50,28 @@ stack_t pop_user()
 	return user_stack[user_tos];
 }
 
+/* primitives */
+
+void prim_plus()
+{
+	stack_t a, b;
+
+	a = pop_user();
+	b = pop_user();
+
+	push_user(a + b);
+}
+
+void prim_minus()
+{
+	stack_t a, b;
+	
+	a = pop_user();
+	b = pop_user();
+		
+	push_user(a - b);
+}
+
 /* main interpreter loop */
 
 int main()
@@ -59,18 +81,23 @@ int main()
 	while (1) {
 
 		putchar('>'); putchar(' ');
+
 		fgets(input_line, MAX_LINE, stdin);
 
-		if (input_line[0] == 'q')
+		if (input_line[0] == 'd')
+			user_tos--;
+		else if (input_line[0] == '+')
+			prim_plus();
+		else if (input_line[0] == '-')
+			prim_minus();
+		else if (input_line[0] == 'q')
 			return 0;
-
-		if (input_line[0] == 's') {
-
+		else if (input_line[0] == 's') {
 			for (int i = 0; i < user_tos; i++)
 				printf("%d ", user_stack[i]);
-
 			putchar('\n');
-		}
+		} else
+			push_user(atoi(input_line)); /* interpret token as a number */
 
 		// parse next token
 
@@ -78,9 +105,7 @@ int main()
 
 		// search_dict();
 
-		/* interpret token as a number */
 
-		push_user(atoi(input_line));
 	}		
 
 	return 0;
