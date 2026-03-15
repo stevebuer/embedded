@@ -1,6 +1,6 @@
 # studyForth
 
-A tiny Forth for 8051/8052 (mcs51/52), z80, and 8085 (mcs-85) development boards.
+A toy Forth for 8051/8052 (mcs51/52), z80, and 8085 (mcs-85) development boards to learn the inner-workings.
 
 ## Design
 

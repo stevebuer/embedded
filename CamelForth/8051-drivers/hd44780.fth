@@ -1,6 +1,10 @@
 \
 \ Forth driver for HD44780 LCD in 8-bit mode on 8051 MCU
 \
+\ Data bus = P1
+\ RS = P3.0
+\ RW = P3.1
+\ E  = P3.2
 
 HEX
 90 CONSTANT P1      \ Data bus (SFR address)
