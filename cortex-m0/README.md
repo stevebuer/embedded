@@ -10,8 +10,12 @@
 
 ## Programming
 
-* SWD
+* SWD: st-link, openocd
 
 ## Examples
 
 * Blinky
+
+## Documentation
+
+* [STM32F030F4P6 data sheet](https://www.st.com/resource/en/datasheet/stm32f030f4.pdf)
