@@ -8,56 +8,61 @@
 
 #include <mcs51/8052.h>
 
+extern __bit cmd_flag;
+extern char cmd_buf;
+
 /* RX and TX share interrupt 4 */
 
 void serial_ISR(void) __interrupt(4) 
 {
 	if (RI) {
 
+		/* Read received byte */
+
+		char c = SBUF;        
+		
 		/* clear RX flag */
 
 		RI = 0;
 
-		/* Read received byte */
+		/* Process the received byte */
 
-		char c = SBUF;        
+		cmd_buf = c;
 
-		/* Process the received byte here */
-        
-		// SBUF = c; // echo loop
+		cmd_flag = 1;
 	}
 }
 
 void init_uart()
 {
-	/* configure Timer 1 for baud rate generation */
+	/* configure timer1 for mode: 2 */
 
-	TMOD &= 0x0F;      // Clear T1 control bits
-	TMOD |= 0x20;      // T1 Mode 2
+	TMOD &= 0x0F;     
+	TMOD |= 0x20;      
 
-	/* Load TH1 with the correct reload value */
+	/* TH1 holds reload value for 9600 baud @ 11.0592 Mhz, load TL1 initial value */
 	
-	TH1 = 0xFD;        // 9600 baud @ 11.0592 MHz
+	TH1 = 0xFD;
 	TL1 = 0xFD;
 
-	/* Set SCON for serial mode 1 and REN = 1 (0b0101) */
+	/* set uartfor serial mode: 1 and REN = 1 (0b0101) */
 
 	SCON = 0x50;
 
-	/* Start Timer 1 */
+	/* start timer1 */
     
 	TR1 = 1; 
 
-	/* TI must be set for initial state */
+	/* TI must be set for initial state or putchar() hangs */
 
 	TI = 1;
 
-	/* enable interrupt */
+	/* enable uart interrupt */
 
 	ES = 1;	
 }
 
-/* This must be implemented for SDCC libc stdio use */
+/* putchar() must be implemented for sdcc libc stdio routines */
 
 int putchar(int c)
 {
@@ -69,7 +74,7 @@ int putchar(int c)
 
 	TI = 0;
 
-	/* MOV char to TX buf */
+	/* move char to tx buf */
 
 	SBUF = c;
 
@@ -78,4 +83,4 @@ int putchar(int c)
 	return c;
 }
 
-// To Do: add configurable baud e.g. init_uart(9600);
+// To do: add configurable baud rate e.g. init_uart(9600);

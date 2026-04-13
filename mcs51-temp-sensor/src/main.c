@@ -32,12 +32,16 @@ main()
 
 	/* program banner or other startup */
 
-
+	puts("mcs51-temp-sensor: firmware v0.0.1");
+	
 	/* program loop */
 
 	while (1) {
+
+		if (cmd_flag)
+			cmd_process();
 	
-		printf("tick=%u\n", (unsigned) systick_read());
+		// printf("tick=%u\n", (unsigned) systick_read());
 
 		/*
 
@@ -55,6 +59,6 @@ main()
 
 		*/
 			
-		delay_ms(1000);
+		delay_ms(100);
 	}
 }

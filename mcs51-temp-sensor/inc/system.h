@@ -3,6 +3,7 @@
  */
 
 extern volatile uint16_t systick_ms;
+extern volatile __bit cmd_flag;
 
 void init_systick(void);
 uint16_t millis(void);
@@ -18,6 +19,8 @@ void init_task(void);
 uint16_t systick_read(void);
 
 void button_update(void);
+
+void cmd_process(void);
 
 uint16_t ds18b20_read_temp(void);
 
