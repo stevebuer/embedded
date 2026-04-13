@@ -7,13 +7,13 @@
  */
 
 #include <mcs51/8052.h>
-/*
+#include <stdio.h>
+#include <stdint.h>
+#include "system.h"
 
-void delay_ms(unsigned int ms) 
+void delay_ms(uint16_t ms) 
 {
-	unsigned long start = systick_ms;
+	uint16_t start = systick_read();
 
-	while ((systick_ms - start) < ms);
+	while ((systick_read() - start) < ms);
 }
-*/
-

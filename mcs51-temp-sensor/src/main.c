@@ -10,8 +10,13 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "system.h"
+// #include "interrupt.h"
+
+/* globals */
 	
 uint16_t last_read = 0;
+
+/* main */
 
 main()
 {
@@ -27,11 +32,14 @@ main()
 
 	/* program banner or other startup */
 
-	printf("tick = %u\n", (unsigned) systick_read());
 
 	/* program loop */
 
 	while (1) {
+	
+		printf("tick=%u\n", (unsigned) systick_read());
+
+		/*
 
 		if (millis() - last_read >= 1000) {
 
@@ -40,8 +48,13 @@ main()
 			uint16_t temp = ds18b20_read_temp();
 
         		// uart_print_temp(temp);
+
 		}
     
 		button_update();
+
+		*/
+			
+		delay_ms(1000);
 	}
 }

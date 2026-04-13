@@ -24,16 +24,7 @@ void serial_ISR(void) __interrupt(4)
 
 		/* Process the received byte here */
         
-		SBUF = c; // echo loop
-	}
-
-	if (TI) {
-
-		/* clear transmit flag */
-
-		TI = 0;
-
-		// Optional: handle transmit-complete events
+		// SBUF = c; // echo loop
 	}
 }
 
@@ -56,6 +47,10 @@ void init_uart()
 	/* Start Timer 1 */
     
 	TR1 = 1; 
+
+	/* TI must be set for initial state */
+
+	TI = 1;
 
 	/* enable interrupt */
 

@@ -8,7 +8,7 @@ CC = sdcc
 AS = sdas8051
 LD = sdcc
 
-CFLAGS = -mmcs51 --std-sdcc99 -I$(INC_DIR)
+CFLAGS = --std-sdcc99 -I$(INC_DIR)
 
 SRC = $(wildcard $(SRC_DIR)/*.c)
 
@@ -28,4 +28,7 @@ $(BUILD_DIR)/$(PROJECT).ihx: $(OBJ)
 clean:
 	rm -rf $(BUILD_DIR) *.ihx *.lk *.map *.mem *.rst *.sym
 
-.PHONY: all clean
+sim:
+	s51 -S port=8051 t 8052 build/firmware.ihx
+
+.PHONY: all clean sim
