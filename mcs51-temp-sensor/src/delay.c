@@ -7,8 +7,6 @@
  */
 
 #include <mcs51/8052.h>
-#include <stdio.h>
-#include <stdint.h>
 #include "system.h"
 
 void delay_ms(uint16_t ms) 

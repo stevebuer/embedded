@@ -7,9 +7,7 @@
  */
 
 #include <mcs51/8052.h>
-#include <stdint.h>
 
 void init_timer(void)
 {
-	// todo
 }

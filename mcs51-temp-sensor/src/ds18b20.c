@@ -7,7 +7,13 @@
  */
 
 #include <mcs51/8052.h>
-#include <stdint.h>
+#include <stdio.h>
+#include "system.h"
+
+void task_temperature(void)
+{
+	puts("temp=0.0");
+}
 
 uint16_t ds18b20_read_temp(void)
 {

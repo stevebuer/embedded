@@ -7,16 +7,24 @@
  */
 
 #include <mcs51/8052.h>
-#include <stdint.h>
 #include <stdio.h>
 #include "system.h"
 
+/* flag from uart isr */
+
 volatile __bit cmd_flag = 0;
 
-char cmd_buf = '\0';
+/* command character from uart isr */
 
-void cmd_process(void)
+char cmd_buf = 0;
+
+/* task handler */
+
+void task_cmd(void)
 {
+	if (!cmd_flag)
+		return;
+
 	cmd_flag = 0;
 
 	switch(cmd_buf) {

@@ -7,7 +7,6 @@
  */
 
 #include <mcs51/8052.h>
-#include <stdint.h>
 #include "system.h"
 
 volatile uint16_t systick_ms = 0;

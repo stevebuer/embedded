@@ -7,10 +7,8 @@
  */
 
 #include <mcs51/8052.h>
-#include <stdint.h>
 #include <stdio.h>
 #include "system.h"
-// #include "interrupt.h"
 
 /* globals */
 	
@@ -24,7 +22,6 @@ main()
 	init_uart();
 	init_timer();
 	init_onewire();
-	init_task();
 
 	/* enable interrupts */
 
@@ -36,29 +33,6 @@ main()
 	
 	/* program loop */
 
-	while (1) {
-
-		if (cmd_flag)
-			cmd_process();
-	
-		// printf("tick=%u\n", (unsigned) systick_read());
-
-		/*
-
-		if (millis() - last_read >= 1000) {
-
-			last_read = millis();
-
-			uint16_t temp = ds18b20_read_temp();
-
-        		// uart_print_temp(temp);
-
-		}
-    
-		button_update();
-
-		*/
-			
-		delay_ms(100);
-	}
+	for (;;)
+		scheduler_run();
 }
