@@ -7,11 +7,12 @@
  */
 
 #include <mcs51/8052.h>
-#include "system.h"
+#include <stdint.h>
+#include "systick.h"
 
 #define BUTTON_1 P2_0
 
-__bit button_flag = 0;
+volatile __bit button_flag = 0;
 
 void task_button(void)
 {

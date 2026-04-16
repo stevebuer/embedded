@@ -11,6 +11,21 @@
 
 #define LED_PIN P2_2
 
+static inline void led_on()
+{
+	LED_PIN = 0;
+}
+
+static inline void led_off()
+{
+	LED_PIN = 1;
+}
+
+static inline void led_toggle()
+{
+	LED_PIN = !LED_PIN;
+}
+
 void task_led(void)
 {
 	LED_PIN ^= 1;

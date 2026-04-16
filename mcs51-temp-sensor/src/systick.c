@@ -7,6 +7,7 @@
  */
 
 #include <mcs51/8052.h>
+#include <stdint.h>
 #include "system.h"
 
 volatile uint16_t systick_ms = 0;
@@ -72,4 +73,11 @@ void init_systick()
 uint16_t millis()
 {
 	return systick_read();
+}
+
+void delay_ms(uint16_t ms) 
+{
+	uint16_t start = systick_read();
+
+	while ((systick_read() - start) < ms);
 }

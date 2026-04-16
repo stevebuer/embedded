@@ -7,8 +7,10 @@
  */
 
 #include <mcs51/8052.h>
+#include <stdint.h>
 #include <stdio.h>
-#include "system.h"
+#include "systick.h"
+#include "cmd.h"
 
 /* flag from uart isr */
 

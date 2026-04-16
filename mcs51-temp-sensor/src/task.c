@@ -7,7 +7,11 @@
  */
 
 #include <mcs51/8052.h>
+#include <stdint.h>
 #include "system.h"
+#include "systick.h"
+#include "cmd.h"
+#include "led.h"
 
 /* task data */
 

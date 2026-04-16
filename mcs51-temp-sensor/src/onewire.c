@@ -8,7 +8,7 @@
 
 #include <mcs51/8052.h>
 
-void init_onewire(void )
+void init_onewire(void)
 {
 	// todo
 }

@@ -7,8 +7,15 @@
  */
 
 #include <mcs51/8052.h>
+#include <stdint.h>
 #include <stdio.h>
 #include "system.h"
+#include "systick.h"
+#include "onewire.h"
+#include "button.h"
+#include "uart.h"
+#include "led.h"
+#include "task.h"
 
 /* globals */
 	
@@ -20,7 +27,7 @@ main()
 {
 	init_systick();
 	init_uart();
-	init_timer();
+	// init_timer();
 	init_onewire();
 
 	/* enable interrupts */
