@@ -1,9 +1,8 @@
 # Embedded
 
-Embedded Systems Software Projects
+Embedded Systems Software Projects and Study
 
 ## Projects
 
 * AX.25 Decoder
-* Forth
-* BASIC
+* MCS-51 Temperature Sensor

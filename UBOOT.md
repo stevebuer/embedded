@@ -1,3 +1,0 @@
-# Uboot
-
-Todo
