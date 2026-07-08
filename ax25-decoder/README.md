@@ -1,6 +1,7 @@
 # AX.25 Decoder
 
+Arm Cortex M0 microcontroller project
+
 ## Hardware
 
-* STM32F0
-* STM32F1
+* STM32F030F4P6

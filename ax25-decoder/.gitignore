@@ -1,0 +1,17 @@
+img/*.png
+
+# Build artifacts
+build/
+*.o
+*.elf
+*.bin
+*.hex
+*.map
+*.d
+
+# Editor/IDE
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
