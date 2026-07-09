@@ -18,7 +18,7 @@ MTHUMB = -mthumb
 MFLOAT_ABI = -mfloat-abi=soft
 
 CFLAGS = $(MCPU) $(MTHUMB) $(MFLOAT_ABI) -Wall -Wextra -O2 -g
-CFLAGS += -D$(DEVICE) -DHSE_VALUE=8000000
+CFLAGS += -D$(DEVICE) -DHSE_VALUE=8000000 -Iinc
 ASFLAGS = $(MCPU) $(MTHUMB) -g
 LDFLAGS = $(MCPU) $(MTHUMB) --specs=nosys.specs -nostartfiles -Wl,-Map=build/output.map -Tstm32f030f4p6.ld
 
