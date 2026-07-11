@@ -1,0 +1,16 @@
+# Build artifacts
+build/
+hal/
+*.ihx
+*.lk
+*.map
+*.mem
+*.rst
+*.sym
+
+# IDE and OS
+.DS_Store
+.vscode/
+*.swp
+*.swo
+*~
