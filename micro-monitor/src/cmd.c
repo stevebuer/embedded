@@ -7,10 +7,10 @@
  */
 
 #include <stdio.h>
+#include <stdint.h>
 
 #define MAXLINE 16
-#define USER_STACK_SIZE 16
-#define USER_STACK_ADDR 0xF0
+#define USER_STACK_SIZE 8
 
 char linebuf[MAXLINE];
 
@@ -18,24 +18,24 @@ const char *prompt = "cmd> ";
 
 /* user stack for arg passing: KISS */
 
-unsigned char *ustack = USER_STACK_ADDR;
-static int ustack_idx = 0;
+int16_t ustack[USER_STACK_SIZE];
+int8_t usp = 0;
 
-void ustack_push(int n)
+void ustack_push(int16_t n)
 {
-	ustack[ustack_idx] = n;
-	ustack_idx++;
+	ustack[usp] = n;
+	usp++;
 }
 
-int ustack_pop()
+int16_t ustack_pop()
 {
-	ustack_idx--;
-	return ustack[ustack_idx + 1];
+	usp--;
+	return ustack[usp + 1];
 }
 
 void ustack_clr()
 {
-	ustack_idx = 0;
+	usp = 0;
 }
 	
 

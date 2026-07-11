@@ -1,12 +1,12 @@
 # Build artifacts
 build/
-hal/
 *.ihx
 *.lk
 *.map
 *.mem
 *.rst
 *.sym
+*.asm
 
 # IDE and OS
 .DS_Store
