@@ -7,9 +7,135 @@
  */
 
 #include <mcs51/8052.h>
+#include <stdio.h>
+
+#define DQ P1_0
 
 void init_onewire(void)
 {
-	// todo
+	puts("Onewire pin init: P1_0");
+    	DQ = 1;
 }
 
+/* 11.059 Mhz crystal gives ~1.085 us delay : keep our own for now */
+
+static void ow_delay_us(unsigned int us)
+{
+	while (us--) {
+	
+		__asm
+		nop
+		nop
+		__endasm;
+	}
+}
+
+/* Reset pulse + presence detect: 1 if presence pulse, 0 of not */
+
+unsigned char ow_reset(void)
+{
+	unsigned char presence;
+
+	/* hold bus low for reset pulse (480-960us) */
+
+	DQ = 0;
+	ow_delay_us(480);
+	DQ = 1;
+
+	/* wait for device to pull low (presence pulse starts within 15-60us) */
+
+	ow_delay_us(60);
+	
+	/* sample presence: low = device present, high = no device */
+
+	presence = DQ;
+
+	/* finish the 480us+ reset/presence slot */
+
+	ow_delay_us(420);
+
+	return (presence == 0) ? 1 : 0;
+}
+
+/* Write a single bit */
+
+void ow_write_bit(unsigned char bit)
+{
+	/* start slot: low */
+
+	DQ = 0;              
+
+	if (bit) {
+
+		/* send 1: short low, long high */
+
+		ow_delay_us(6);
+		DQ = 1;
+		ow_delay_us(64);
+
+	} else {
+
+		/* send 0: hold full slot low wth 4us recovery */
+
+		ow_delay_us(60);
+		DQ = 1;
+		ow_delay_us(4);
+	}
+}
+
+/* Read a single bit */
+
+unsigned char ow_read_bit(void)
+{
+	unsigned char bit;
+
+	/* start slot */
+
+	DQ = 0;
+	ow_delay_us(2);
+	DQ = 1;
+	
+	/* wait before sample point (~13-15us from slot start) */
+
+	ow_delay_us(9);             
+
+	/* read sample */
+
+	bit = DQ;
+	
+	/* wait for slot end (~60us total) */
+
+	ow_delay_us(50);            
+
+	return bit;
+}
+
+/* Write a byte, LSB first */
+
+void ow_write_byte(unsigned char data)
+{
+	unsigned char i;
+
+	for (i = 0; i < 8; i++) {
+
+		ow_write_bit(data & 0x01);
+		data >>= 1;
+	}
+}
+
+/* Read a byte, LSB first */
+
+unsigned char ow_read_byte(void)
+{
+	unsigned char i, data = 0;
+
+	for (i = 0; i < 8; i++) {
+
+		data >>= 1;
+
+		if (ow_read_bit())
+			data |= 0x80;
+	}
+
+	return data;
+}

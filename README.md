@@ -1,6 +1,6 @@
 # Embedded
 
-Embedded Systems Software Projects and Study
+Embedded Systems Software Projects
 
 ## Projects
 

@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "systick.h"
+#include "onewire.h"
 #include "cmd.h"
 
 /* flag from uart isr */
@@ -40,6 +41,8 @@ void task_cmd(void)
 		case 'l':
 		case '?':
 		case 'o':
+			printf("onewire scan: %d\n", ow_reset());
+			break;
 		case 's':
 			goto err;
 		case 't':
