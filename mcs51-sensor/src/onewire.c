@@ -8,8 +8,15 @@
 
 #include <mcs51/8052.h>
 #include <stdio.h>
+#include <stdint.h>
+
+/* bit SFR for 1-wire bus */
 
 #define DQ P1_0
+
+/* 1-wire command bytes */
+
+#define CMD_READ_ROM 0x33
 
 void init_onewire(void)
 {
@@ -19,7 +26,7 @@ void init_onewire(void)
 
 /* 11.059 Mhz crystal gives ~1.085 us delay : keep our own for now */
 
-static void ow_delay_us(unsigned int us)
+void ow_delay_us(unsigned int us)
 {
 	while (us--) {
 	
@@ -30,7 +37,7 @@ static void ow_delay_us(unsigned int us)
 	}
 }
 
-/* Reset pulse + presence detect: 1 if presence pulse, 0 of not */
+/* reset pulse + presence detect: 1 if presence pulse, 0 of not */
 
 unsigned char ow_reset(void)
 {
@@ -57,7 +64,7 @@ unsigned char ow_reset(void)
 	return (presence == 0) ? 1 : 0;
 }
 
-/* Write a single bit */
+/* write a single bit */
 
 void ow_write_bit(unsigned char bit)
 {
@@ -83,7 +90,7 @@ void ow_write_bit(unsigned char bit)
 	}
 }
 
-/* Read a single bit */
+/* read a single bit */
 
 unsigned char ow_read_bit(void)
 {
@@ -110,7 +117,7 @@ unsigned char ow_read_bit(void)
 	return bit;
 }
 
-/* Write a byte, LSB first */
+/* write a byte, LSB first */
 
 void ow_write_byte(unsigned char data)
 {
@@ -123,7 +130,7 @@ void ow_write_byte(unsigned char data)
 	}
 }
 
-/* Read a byte, LSB first */
+/* read a byte, LSB first */
 
 unsigned char ow_read_byte(void)
 {
@@ -138,4 +145,42 @@ unsigned char ow_read_byte(void)
 	}
 
 	return data;
+}
+
+/* read 64-bit ROM id */
+
+void ow_read_rom(uint8_t *rom)
+{
+	uint8_t i;
+
+	/* no device present */
+
+	if (!ow_reset())
+		return;  
+
+	/* Read ROM */
+
+	ow_write_byte(CMD_READ_ROM);  
+
+	for (i = 0; i < 8; i++)
+		rom[i] = ow_read_byte();
+}
+
+/* our bus only has a single device for now */
+
+void ow_scanbus(void)
+{
+	uint8_t i, rom[8];
+
+	ow_read_rom(rom);
+
+	for (i = 0; i < 8; i++) {
+
+		/* print two hex digits per byte */
+
+		putchar("0123456789ABCDEF"[rom[i] >> 4]);
+		putchar("0123456789ABCDEF"[rom[i] & 0x0F]);
+	}
+
+	putchar('\n');
 }
