@@ -9,7 +9,8 @@
 /**
  * Initialize bit decoder
  */
-void BitDecoder_Init(bit_decoder_t *bd)
+
+void bit_decoder_init(bit_decoder_t *bd)
 {
     bd->last_symbol = 0;
     bd->last_bit = 0;
@@ -22,7 +23,8 @@ void BitDecoder_Init(bit_decoder_t *bd)
 /**
  * NRZI Decoding: 1 = no transition, 0 = transition
  */
-int16_t BitDecoder_Process(bit_decoder_t *bd, uint8_t symbol)
+
+int16_t bit_decoder_process(bit_decoder_t *bd, uint8_t symbol)
 {
     /* NRZI decode: compare with last symbol */
     uint8_t bit = (symbol == bd->last_symbol) ? 1 : 0;
@@ -34,7 +36,8 @@ int16_t BitDecoder_Process(bit_decoder_t *bd, uint8_t symbol)
 /**
  * Initialize frame decoder
  */
-void FrameDecoder_Init(frame_decoder_t *fd)
+
+void frame_decoder_init(frame_decoder_t *fd)
 {
     fd->state = STATE_SYNCING;
     fd->frame_length = 0;
@@ -54,7 +57,8 @@ void FrameDecoder_Init(frame_decoder_t *fd)
 /**
  * Update CRC/FCS with new bit
  */
-static void UpdateFCS(uint16_t *fcs, uint8_t bit)
+
+static void update_fcs(uint16_t *fcs, uint8_t bit)
 {
     uint16_t xor_in = (*fcs ^ ((uint16_t)bit << 15)) & 0x8000;
     *fcs <<= 1;
@@ -70,7 +74,8 @@ static void UpdateFCS(uint16_t *fcs, uint8_t bit)
  * - Bit stuffing removal (5 consecutive 1s -> skip next 0)
  * - FCS calculation
  */
-int8_t FrameDecoder_Process(frame_decoder_t *fd, uint8_t bit)
+
+int8_t frame_decoder_process(frame_decoder_t *fd, uint8_t bit)
 {
     fd->bits_since_flag++;
     
@@ -134,7 +139,7 @@ int8_t FrameDecoder_Process(frame_decoder_t *fd, uint8_t bit)
                 /* Update FCS before adding to frame */
                 for (int i = 0; i < 8; i++)
                 {
-                    UpdateFCS(&fd->fcs, (fd->bit_buffer >> (7 - i)) & 1);
+                    update_fcs(&fd->fcs, (fd->bit_buffer >> (7 - i)) & 1);
                 }
                 
                 /* Check for frame end flag (0x7E) */
@@ -192,7 +197,8 @@ int8_t FrameDecoder_Process(frame_decoder_t *fd, uint8_t bit)
 /**
  * Get completed frame
  */
-uint8_t *FrameDecoder_GetFrame(frame_decoder_t *fd, uint16_t *length)
+
+uint8_t *frame_decoder_get_frame(frame_decoder_t *fd, uint16_t *length)
 {
     if (fd->state == STATE_FRAME_COMPLETE && fd->frame_length > 0)
     {
@@ -209,6 +215,7 @@ uint8_t *FrameDecoder_GetFrame(frame_decoder_t *fd, uint16_t *length)
 /**
  * Calculate CRC-CCITT for frame
  */
+
 uint16_t AX25_CalculateCRC(const uint8_t *data, uint16_t len)
 {
     uint16_t crc = CRC_INIT;
@@ -218,7 +225,7 @@ uint16_t AX25_CalculateCRC(const uint8_t *data, uint16_t len)
         uint8_t byte = data[i];
         for (int bit = 0; bit < 8; bit++)
         {
-            UpdateFCS(&crc, (byte >> bit) & 1);
+            update_fcs(&crc, (byte >> bit) & 1);
         }
     }
     
@@ -229,8 +236,8 @@ uint16_t AX25_CalculateCRC(const uint8_t *data, uint16_t len)
  * Parse AX.25 frame
  * Structure: [flag] [dest_addr(7)] [src_addr(7)] [control] [pid] [data...] [fcs(2)] [flag]
  */
-int8_t AX25_ParseFrame(const uint8_t *raw_frame, uint16_t frame_len, 
-                        ax25_frame_t *frame)
+
+int8_t ax25_parse_frame(const uint8_t *raw_frame, uint16_t frame_len, ax25_frame_t *frame)
 {
     if (frame_len < AX25_MIN_FRAME_LEN)
         return -1;  /* Frame too short */
@@ -285,7 +292,8 @@ int8_t AX25_ParseFrame(const uint8_t *raw_frame, uint16_t frame_len,
 /**
  * Validate FCS
  */
-uint8_t AX25_ValidateFCS(ax25_frame_t *frame)
+
+uint8_t ax25_validate_fcs(ax25_frame_t *frame)
 {
     return frame->fcs_valid;
 }

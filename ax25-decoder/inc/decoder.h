@@ -101,7 +101,7 @@ typedef struct {
 /**
  * Initialize bit decoder
  */
-void BitDecoder_Init(bit_decoder_t *bd);
+void bit_decoder_init(bit_decoder_t *bd);
 
 /**
  * Decode FSK symbol to bit(s)
@@ -111,12 +111,12 @@ void BitDecoder_Init(bit_decoder_t *bd);
  * @param symbol FSK symbol (0 or 1)
  * @return Decoded bit (0 or 1), or -1 if no new bit
  */
-int16_t BitDecoder_Process(bit_decoder_t *bd, uint8_t symbol);
+int16_t bit_decoder_process(bit_decoder_t *bd, uint8_t symbol);
 
 /**
  * Initialize frame decoder
  */
-void FrameDecoder_Init(frame_decoder_t *fd);
+void frame_decoder_init(frame_decoder_t *fd);
 
 /**
  * Process a decoded bit for frame assembly
@@ -125,7 +125,7 @@ void FrameDecoder_Init(frame_decoder_t *fd);
  * @param bit Decoded bit (0 or 1)
  * @return 1 if frame complete, 0 if collecting, -1 on error
  */
-int8_t FrameDecoder_Process(frame_decoder_t *fd, uint8_t bit);
+int8_t frame_decoder_process(frame_decoder_t *fd, uint8_t bit);
 
 /**
  * Get completed frame
@@ -133,7 +133,7 @@ int8_t FrameDecoder_Process(frame_decoder_t *fd, uint8_t bit);
  * @param fd Frame decoder instance
  * @return Pointer to frame buffer, or NULL if no frame available
  */
-uint8_t *FrameDecoder_GetFrame(frame_decoder_t *fd, uint16_t *length);
+uint8_t *frame_decoder_get_frame(frame_decoder_t *fd, uint16_t *length);
 
 /**
  * Parse raw AX.25 frame into fields
@@ -143,8 +143,7 @@ uint8_t *FrameDecoder_GetFrame(frame_decoder_t *fd, uint16_t *length);
  * @param frame Parsed frame structure (output)
  * @return 0 on success, -1 on parse error
  */
-int8_t AX25_ParseFrame(const uint8_t *raw_frame, uint16_t frame_len, 
-                        ax25_frame_t *frame);
+int8_t ax25_parse_frame(const uint8_t *raw_frame, uint16_t frame_len, ax25_frame_t *frame);
 
 /**
  * Calculate CRC/FCS for frame
@@ -154,7 +153,7 @@ int8_t AX25_ParseFrame(const uint8_t *raw_frame, uint16_t frame_len,
  * @param len Frame length
  * @return Calculated CRC value
  */
-uint16_t AX25_CalculateCRC(const uint8_t *data, uint16_t len);
+uint16_t ax25_calculate_crc(const uint8_t *data, uint16_t len);
 
 /**
  * Check if FCS is valid
@@ -162,6 +161,6 @@ uint16_t AX25_CalculateCRC(const uint8_t *data, uint16_t len);
  * @param frame Parsed frame
  * @return 1 if FCS valid, 0 if not
  */
-uint8_t AX25_ValidateFCS(ax25_frame_t *frame);
+uint8_t ax25_validate_fcs(ax25_frame_t *frame);
 
 #endif /* DECODER_H */

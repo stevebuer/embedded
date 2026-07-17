@@ -23,8 +23,8 @@
  * @param len Buffer length
  * @return Number of characters written
  */
-uint16_t TNC2_FormatCallsign(const uint8_t *call, uint8_t ssid, 
-                              char *buf, uint16_t len);
+
+uint16_t tnc2_format_callsign(const uint8_t *call, uint8_t ssid, char *buf, uint16_t len);
 
 /**
  * Format complete AX.25 frame as TNC2 ASCII
@@ -34,7 +34,8 @@ uint16_t TNC2_FormatCallsign(const uint8_t *call, uint8_t ssid,
  * @param len Buffer length
  * @return Number of characters written, or -1 on error
  */
-int16_t TNC2_FormatFrame(const ax25_frame_t *frame, char *buf, uint16_t len);
+
+int16_t tnc2_format_frame(const ax25_frame_t *frame, char *buf, uint16_t len);
 
 /**
  * Output frame as TNC2 to serial
@@ -42,6 +43,7 @@ int16_t TNC2_FormatFrame(const ax25_frame_t *frame, char *buf, uint16_t len);
  * 
  * @param frame Parsed AX.25 frame
  */
-void TNC2_PrintFrame(const ax25_frame_t *frame);
+
+void tnc2_print_frame(const ax25_frame_t *frame);
 
 #endif /* TNC2_H */

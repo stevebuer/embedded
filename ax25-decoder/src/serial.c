@@ -2,6 +2,7 @@
 #include <stdarg.h>
 
 /* STM32F030 USART1 Register Definitions */
+
 #define RCC_BASE           0x40021000
 #define RCC_AHBENR         (*(volatile uint32_t *)(RCC_BASE + 0x14))
 #define RCC_APB2ENR        (*(volatile uint32_t *)(RCC_BASE + 0x18))
@@ -23,31 +24,32 @@
  * PA9 = TX, PA10 = RX
  * 115200 baud, 8 bits, no parity, 1 stop bit
  */
-void Serial_Init(void)
+
+void serial_init(void)
 {
-    /* Enable GPIO and USART1 clocks */
+    /* enable GPIO and USART1 clocks */
     RCC_AHBENR |= (1 << 0);   /* Enable GPIOA clock */
     RCC_APB2ENR |= (1 << 14); /* Enable USART1 clock */
     
-    /* Configure PA9 (TX) and PA10 (RX) as alternate function */
+    /* configure PA9 (TX) and PA10 (RX) as alternate function */
     GPIOA_MODER &= ~(3 << 18);
     GPIOA_MODER |= (2 << 18);
     GPIOA_MODER &= ~(3 << 20);
     GPIOA_MODER |= (2 << 20);
     
-    /* Set alternate function AF1 */
+    /* set alternate function AF1 */
     GPIOA_AFRH &= ~(0xF << 4);
     GPIOA_AFRH |= (1 << 4);
     GPIOA_AFRH &= ~(0xF << 8);
     GPIOA_AFRH |= (1 << 8);
     
-    /* Disable while configuring */
+    /* disable while configuring */
     USART1_CR1 &= ~(1 << 0);
     
-    /* Baud rate: 9600 at 8MHz = BRR 833 */
+    /* baud rate: 9600 at 8MHz = BRR 833 */
     USART1_BRR = 833;
     
-    /* Enable TX/RX */
+    /* enable TX/RX */
     USART1_CR1 = 0;
     USART1_CR1 |= (1 << 3);   /* TE */
     USART1_CR1 |= (1 << 2);   /* RE */
@@ -56,42 +58,40 @@ void Serial_Init(void)
     USART1_CR3 = 0;
 }
 
-/**
- * Check if ready to transmit
- */
-uint8_t Serial_Ready(void)
+/* check transmit ready */
+
+uint8_t serial_ready(void)
 {
-    return (USART1_ISR & (1 << 7)) ? 1 : 0;
+	return (USART1_ISR & (1 << 7)) ? 1 : 0;
 }
 
-/**
- * Send single character
- */
-void Serial_PutChar(char c)
+/* tx single character */
+
+void serial_putchar(char c)
 {
-    while (!Serial_Ready());
-    USART1_TDR = (uint8_t)c;
+	while (!serial_ready());
+
+	USART1_TDR = (uint8_t)c;
 }
 
-/**
- * Send string
- */
-void Serial_PutString(const char *str)
+/* tx string */
+
+void serial_putstring(const char *str)
 {
-    if (!str)
-        return;
+	if (!str)
+		return;
     
-    while (*str)
-    {
-        if (*str == '\n')
-            Serial_PutChar('\r');
-        Serial_PutChar(*str++);
-    }
+	while (*str) {
+
+		if (*str == '\n')
+			serial_putchar('\r');
+		
+		serial_putchar(*str++);
+	}
 }
 
-/**
- * Convert integer to string (no dependency on snprintf)
- */
+/* convert integer to string (no dependency on snprintf) */
+
 static int IntToStr(int value, char *buf, int base)
 {
     const char digits[] = "0123456789abcdef";
@@ -148,7 +148,7 @@ void Serial_Printf(const char *fmt, ...)
                 {
                     const char *s = va_arg(args, const char *);
                     if (s)
-                        Serial_PutString(s);
+                        serial_putstring(s);
                     break;
                 }
                 
@@ -158,7 +158,7 @@ void Serial_Printf(const char *fmt, ...)
                     char buf[16];
                     int len = IntToStr(d, buf, 10);
                     for (int i = 0; i < len; i++)
-                        Serial_PutChar(buf[i]);
+                        serial_putchar(buf[i]);
                     break;
                 }
                 
@@ -168,14 +168,14 @@ void Serial_Printf(const char *fmt, ...)
                     char buf[16];
                     int len = IntToStr(x, buf, 16);
                     for (int i = 0; i < len; i++)
-                        Serial_PutChar(buf[i]);
+                        serial_putchar(buf[i]);
                     break;
                 }
                 
                 case 'c':
                 {
                     int c = va_arg(args, int);
-                    Serial_PutChar((char)c);
+                    serial_putchar((char)c);
                     break;
                 }
             }
@@ -183,7 +183,7 @@ void Serial_Printf(const char *fmt, ...)
         }
         else
         {
-            Serial_PutChar(*fmt++);
+            serial_putchar(*fmt++);
         }
     }
     

@@ -15,10 +15,7 @@ typedef enum {
     BUTTON_COUNT = 2
 } button_t;
 
-/**
- * Initialize button GPIO inputs
- */
-void Button_Init(void);
+void button_init(void);
 
 /**
  * Poll button state
@@ -27,7 +24,8 @@ void Button_Init(void);
  * @param button Button to check (BUTTON_A or BUTTON_B)
  * @return 1 if pressed, 0 if released
  */
-uint8_t Button_IsPressed(button_t button);
+
+uint8_t button_is_pressed(button_t button);
 
 /**
  * Check for button press event (edge detection)
@@ -36,7 +34,7 @@ uint8_t Button_IsPressed(button_t button);
  * @param button Button to check
  * @return 1 if newly pressed, 0 otherwise
  */
-uint8_t Button_PressedEvent(button_t button);
+uint8_t button_pressed_event(button_t button);
 
 /**
  * Get button statistics
@@ -44,6 +42,6 @@ uint8_t Button_PressedEvent(button_t button);
  * @param button Button to query
  * @return Number of times button has been pressed
  */
-uint32_t Button_GetPressCount(button_t button);
+uint32_t button_get_press_count(button_t button);
 
 #endif /* BUTTONS_H */

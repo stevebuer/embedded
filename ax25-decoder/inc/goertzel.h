@@ -15,23 +15,29 @@
  */
 
 typedef struct {
+
     /* Configuration */
+
     float target_frequency;      /* Frequency to detect (Hz) */
     uint32_t sample_rate;        /* ADC sample rate (Hz) */
     uint16_t block_size;         /* Samples per analysis block */
     
     /* Coefficients */
+
     float coeff;                 /* 2 * cos(2 * pi * k / N) */
     float Q0, Q1, Q2;            /* IIR filter state */
     
     /* Results */
+
     float magnitude;             /* Magnitude of detected frequency */
     float power;                 /* Power (magnitude^2) */
     float threshold;             /* Detection threshold */
     
     /* Statistics */
+
     uint32_t blocks_processed;
     uint32_t threshold_crossings;
+
 } goertzel_t;
 
 /**
@@ -42,8 +48,8 @@ typedef struct {
  * @param sample_rate Sample rate (Hz)
  * @param block_size Samples per block (power of 2 recommended)
  */
-void Goertzel_Init(goertzel_t *g, float target_freq, uint32_t sample_rate, 
-                   uint16_t block_size);
+
+void goertzel_init(goertzel_t *g, float target_freq, uint32_t sample_rate, uint16_t block_size);
 
 /**
  * Process a block of samples and calculate magnitude at target frequency
@@ -54,7 +60,8 @@ void Goertzel_Init(goertzel_t *g, float target_freq, uint32_t sample_rate,
  * @param count Number of samples (should equal block_size)
  * @return Magnitude at target frequency
  */
-float Goertzel_Process(goertzel_t *g, const uint16_t *samples, uint16_t count);
+
+float goertzel_process(goertzel_t *g, const uint16_t *samples, uint16_t count);
 
 /**
  * Reset filter state (zeros out IIR state)
@@ -62,7 +69,8 @@ float Goertzel_Process(goertzel_t *g, const uint16_t *samples, uint16_t count);
  * 
  * @param g Goertzel filter instance
  */
-void Goertzel_Reset(goertzel_t *g);
+
+void goertzel_reset(goertzel_t *g);
 
 /**
  * Check if magnitude exceeds threshold (tone detected)
@@ -70,7 +78,8 @@ void Goertzel_Reset(goertzel_t *g);
  * @param g Goertzel filter instance
  * @return 1 if tone detected, 0 otherwise
  */
-uint8_t Goertzel_ToneDetected(goertzel_t *g);
+
+uint8_t goertzel_tone_detected(goertzel_t *g);
 
 /**
  * Set detection threshold
@@ -78,7 +87,8 @@ uint8_t Goertzel_ToneDetected(goertzel_t *g);
  * @param g Goertzel filter instance
  * @param threshold Power threshold for tone detection
  */
-void Goertzel_SetThreshold(goertzel_t *g, float threshold);
+
+void goertzel_set_threshold(goertzel_t *g, float threshold);
 
 /**
  * Get current power measurement
@@ -86,7 +96,8 @@ void Goertzel_SetThreshold(goertzel_t *g, float threshold);
  * @param g Goertzel filter instance
  * @return Power at target frequency
  */
-float Goertzel_GetPower(goertzel_t *g);
+
+float goertzel_get_power(goertzel_t *g);
 
 /**
  * Get current magnitude measurement
@@ -94,17 +105,21 @@ float Goertzel_GetPower(goertzel_t *g);
  * @param g Goertzel filter instance
  * @return Magnitude at target frequency
  */
-float Goertzel_GetMagnitude(goertzel_t *g);
+
+float goertzel_get_magnitude(goertzel_t *g);
 
 /**
  * FSK Decoder - Dual-tone frequency shift keying
  * Detects Bell 202 FSK: 1200 Hz (mark), 2200 Hz (space)
  */
+
 typedef struct {
+
     goertzel_t mark;           /* 1200 Hz detector */
     goertzel_t space;          /* 2200 Hz detector */
     uint8_t current_tone;      /* 0 = space, 1 = mark */
     uint32_t tone_changes;     /* Transition counter */
+
 } fsk_decoder_t;
 
 /**
@@ -114,7 +129,8 @@ typedef struct {
  * @param sample_rate Sample rate (Hz)
  * @param block_size Samples per block
  */
-void FSK_Init(fsk_decoder_t *fsk, uint32_t sample_rate, uint16_t block_size);
+
+void fsk_init(fsk_decoder_t *fsk, uint32_t sample_rate, uint16_t block_size);
 
 /**
  * Process sample block for FSK detection
@@ -125,6 +141,7 @@ void FSK_Init(fsk_decoder_t *fsk, uint32_t sample_rate, uint16_t block_size);
  * @param count Sample count
  * @return Current detected symbol
  */
-uint8_t FSK_Process(fsk_decoder_t *fsk, const uint16_t *samples, uint16_t count);
+
+uint8_t fsk_process(fsk_decoder_t *fsk, const uint16_t *samples, uint16_t count);
 
 #endif /* GOERTZEL_H */

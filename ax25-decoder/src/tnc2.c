@@ -7,7 +7,8 @@
  * AX.25 callsigns are encoded with shifted bits
  * Each character is shifted left by 1 bit in the 7-byte address field
  */
-static char DecodeCallChar(uint8_t byte)
+
+static char decode_call_char(uint8_t byte)
 {
     /* Shift right by 1 to get original character */
     char c = (byte >> 1) & 0x7F;
@@ -27,8 +28,8 @@ static char DecodeCallChar(uint8_t byte)
  * Format callsign from 7-byte encoded address
  * Callsign is 6 characters + SSID in 7th byte
  */
-uint16_t TNC2_FormatCallsign(const uint8_t *call, uint8_t ssid, 
-                              char *buf, uint16_t len)
+
+uint16_t tnc2_format_callsign(const uint8_t *call, uint8_t ssid, char *buf, uint16_t len)
 {
     if (!call || !buf || len < 10)
         return 0;
@@ -39,7 +40,7 @@ uint16_t TNC2_FormatCallsign(const uint8_t *call, uint8_t ssid,
     /* Decode 6-character callsign */
     for (int i = 0; i < 6 && written < len - 3; i++)
     {
-        char c = DecodeCallChar(call[i]);
+        char c = decode_call_char(call[i]);
         if (c == '\0')
             break;  /* End of callsign */
         
@@ -77,7 +78,8 @@ uint16_t TNC2_FormatCallsign(const uint8_t *call, uint8_t ssid,
  * Format complete frame as TNC2
  * SOURCE>DEST[,PATH]:PAYLOAD
  */
-int16_t TNC2_FormatFrame(const ax25_frame_t *frame, char *buf, uint16_t len)
+
+int16_t tnc2_format_frame(const ax25_frame_t *frame, char *buf, uint16_t len)
 {
     if (!frame || !buf || len < 32)
         return -1;
@@ -87,7 +89,7 @@ int16_t TNC2_FormatFrame(const ax25_frame_t *frame, char *buf, uint16_t len)
     uint16_t written = 0;
     
     /* Source callsign */
-    uint16_t src_len = TNC2_FormatCallsign(frame->src_call, frame->src_ssid, p, remaining);
+    uint16_t src_len = tnc2_format_callsign(frame->src_call, frame->src_ssid, p, remaining);
     if (src_len == 0)
         return -1;
     p += src_len;
@@ -102,7 +104,7 @@ int16_t TNC2_FormatFrame(const ax25_frame_t *frame, char *buf, uint16_t len)
     written++;
     
     /* Destination callsign */
-    uint16_t dst_len = TNC2_FormatCallsign(frame->dest_call, frame->dest_ssid, p, remaining);
+    uint16_t dst_len = tnc2_format_callsign(frame->dest_call, frame->dest_ssid, p, remaining);
     if (dst_len == 0)
         return -1;
     p += dst_len;
@@ -133,17 +135,18 @@ int16_t TNC2_FormatFrame(const ax25_frame_t *frame, char *buf, uint16_t len)
 /**
  * Print frame as TNC2 to serial
  */
-void TNC2_PrintFrame(const ax25_frame_t *frame)
+
+void tnc2_print_frame(const ax25_frame_t *frame)
 {
     if (!frame)
         return;
     
     char tnc2_buf[128];  /* Reduced from 256 */
-    int16_t len = TNC2_FormatFrame(frame, tnc2_buf, sizeof(tnc2_buf));
+    int16_t len = tnc2_format_frame(frame, tnc2_buf, sizeof(tnc2_buf));
     
     if (len > 0)
     {
-        Serial_PutString(tnc2_buf);
-        Serial_PutString("\n");
+        serial_putstring(tnc2_buf);
+        serial_putstring("\n");
     }
 }

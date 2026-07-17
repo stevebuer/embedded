@@ -30,7 +30,7 @@ static button_state_t button_states[BUTTON_COUNT] = {0};
 /**
  * Initialize button GPIO inputs with pull-ups
  */
-void Button_Init(void)
+void button_init(void)
 {
     /* Enable GPIOA clock */
     RCC_AHBENR |= (1 << 0);
@@ -47,7 +47,7 @@ void Button_Init(void)
 /**
  * Read raw button pin state
  */
-static uint8_t ReadButtonPin(button_t button)
+static uint8_t read_button_pin(button_t button)
 {
     uint32_t pin = (button == BUTTON_A) ? BUTTON_A_PIN : BUTTON_B_PIN;
     uint32_t pin_bit = (GPIOA_IDR >> pin) & 1;
@@ -59,13 +59,13 @@ static uint8_t ReadButtonPin(button_t button)
 /**
  * Poll button state with debouncing
  */
-uint8_t Button_IsPressed(button_t button)
+uint8_t button_is_pressed(button_t button)
 {
     if (button >= BUTTON_COUNT)
         return 0;
     
     button_state_t *btn = &button_states[button];
-    uint8_t raw_state = ReadButtonPin(button);
+    uint8_t raw_state = read_button_pin(button);
     
     /* Debounce: count consecutive reads of same state */
     if (raw_state == btn->current_state)
@@ -96,7 +96,7 @@ uint8_t Button_IsPressed(button_t button)
 /**
  * Edge detection: return 1 only on press transition
  */
-uint8_t Button_PressedEvent(button_t button)
+uint8_t button_pressed_event(button_t button)
 {
     if (button >= BUTTON_COUNT)
         return 0;
@@ -104,7 +104,7 @@ uint8_t Button_PressedEvent(button_t button)
     button_state_t *btn = &button_states[button];
     
     /* Get current state (this also debounces) */
-    uint8_t current = Button_IsPressed(button);
+    uint8_t current = button_is_pressed(button);
     
     /* Detect transition from not-pressed to pressed */
     uint8_t event = (current == 1 && btn->previous_state == 0) ? 1 : 0;
@@ -117,7 +117,7 @@ uint8_t Button_PressedEvent(button_t button)
 /**
  * Get button press count
  */
-uint32_t Button_GetPressCount(button_t button)
+uint32_t button_get_press_count(button_t button)
 {
     if (button >= BUTTON_COUNT)
         return 0;

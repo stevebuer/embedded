@@ -6,8 +6,8 @@
 /**
  * Initialize Goertzel filter for frequency detection
  */
-void Goertzel_Init(goertzel_t *g, float target_freq, uint32_t sample_rate, 
-                   uint16_t block_size)
+
+void goertzel_init(goertzel_t *g, float target_freq, uint32_t sample_rate, uint16_t block_size)
 {
     g->target_frequency = target_freq;
     g->sample_rate = sample_rate;
@@ -39,7 +39,8 @@ void Goertzel_Init(goertzel_t *g, float target_freq, uint32_t sample_rate,
  * Process a block of samples
  * Implements the Goertzel IIR filter followed by magnitude calculation
  */
-float Goertzel_Process(goertzel_t *g, const uint16_t *samples, uint16_t count)
+
+float goertzel_process(goertzel_t *g, const uint16_t *samples, uint16_t count)
 {
     /* Run IIR filter on all samples */
     for (uint16_t i = 0; i < count; i++)
@@ -82,7 +83,8 @@ float Goertzel_Process(goertzel_t *g, const uint16_t *samples, uint16_t count)
 /**
  * Reset filter state between blocks
  */
-void Goertzel_Reset(goertzel_t *g)
+
+void goertzel_reset(goertzel_t *g)
 {
     g->Q0 = 0.0f;
     g->Q1 = 0.0f;
@@ -92,7 +94,8 @@ void Goertzel_Reset(goertzel_t *g)
 /**
  * Check if tone is detected above threshold
  */
-uint8_t Goertzel_ToneDetected(goertzel_t *g)
+
+uint8_t goertzel_tone_detected(goertzel_t *g)
 {
     return (g->power > g->threshold) ? 1 : 0;
 }
@@ -100,7 +103,8 @@ uint8_t Goertzel_ToneDetected(goertzel_t *g)
 /**
  * Set detection threshold
  */
-void Goertzel_SetThreshold(goertzel_t *g, float threshold)
+
+void goertzel_set_threshold(goertzel_t *g, float threshold)
 {
     g->threshold = threshold;
 }
@@ -108,7 +112,8 @@ void Goertzel_SetThreshold(goertzel_t *g, float threshold)
 /**
  * Get current power measurement
  */
-float Goertzel_GetPower(goertzel_t *g)
+
+float goertzel_get_power(goertzel_t *g)
 {
     return g->power;
 }
@@ -116,7 +121,8 @@ float Goertzel_GetPower(goertzel_t *g)
 /**
  * Get current magnitude measurement
  */
-float Goertzel_GetMagnitude(goertzel_t *g)
+
+float goertzel_get_magnitude(goertzel_t *g)
 {
     return g->magnitude;
 }
@@ -128,15 +134,16 @@ float Goertzel_GetMagnitude(goertzel_t *g)
 /**
  * Initialize FSK decoder with dual-tone detection
  */
-void FSK_Init(fsk_decoder_t *fsk, uint32_t sample_rate, uint16_t block_size)
+
+void fsk_init(fsk_decoder_t *fsk, uint32_t sample_rate, uint16_t block_size)
 {
     /* AX.25 Bell 202 FSK: 1200 Hz (mark), 2200 Hz (space) */
-    Goertzel_Init(&fsk->mark, 1200.0f, sample_rate, block_size);
-    Goertzel_Init(&fsk->space, 2200.0f, sample_rate, block_size);
+    goertzel_init(&fsk->mark, 1200.0f, sample_rate, block_size);
+    goertzel_init(&fsk->space, 2200.0f, sample_rate, block_size);
     
     /* Set thresholds (tunable based on SNR) */
-    Goertzel_SetThreshold(&fsk->mark, 5000.0f);
-    Goertzel_SetThreshold(&fsk->space, 5000.0f);
+    goertzel_set_threshold(&fsk->mark, 5000.0f);
+    goertzel_set_threshold(&fsk->space, 5000.0f);
     
     fsk->current_tone = 0;
     fsk->tone_changes = 0;
@@ -146,15 +153,16 @@ void FSK_Init(fsk_decoder_t *fsk, uint32_t sample_rate, uint16_t block_size)
  * Process sample block for FSK detection
  * Returns detected symbol (0 = space, 1 = mark)
  */
-uint8_t FSK_Process(fsk_decoder_t *fsk, const uint16_t *samples, uint16_t count)
+
+uint8_t fsk_process(fsk_decoder_t *fsk, const uint16_t *samples, uint16_t count)
 {
     /* Process both tones */
-    float mark_mag = Goertzel_Process(&fsk->mark, samples, count);
-    Goertzel_Reset(&fsk->mark);
+    float mark_mag = goertzel_process(&fsk->mark, samples, count);
+    goertzel_reset(&fsk->mark);
     
-    Goertzel_Reset(&fsk->space);
-    float space_mag = Goertzel_Process(&fsk->space, samples, count);
-    Goertzel_Reset(&fsk->space);
+    goertzel_reset(&fsk->space);
+    float space_mag = goertzel_process(&fsk->space, samples, count);
+    goertzel_reset(&fsk->space);
     
     /* Determine which tone is stronger */
     uint8_t detected_tone = (mark_mag > space_mag) ? 1 : 0;

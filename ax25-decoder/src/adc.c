@@ -1,6 +1,7 @@
 #include "adc.h"
 
 /* STM32F030 Register Definitions */
+
 #define RCC_BASE           0x40021000
 #define RCC_AHBENR         (*(volatile uint32_t *)(RCC_BASE + 0x14))
 #define RCC_APB2ENR        (*(volatile uint32_t *)(RCC_BASE + 0x18))
@@ -31,6 +32,7 @@
 #define DMA1_CMAR1         (*(volatile uint32_t *)(DMA_CH1_BASE + 0x0C))
 
 /* Global ADC buffer */
+
 volatile uint16_t adc_buffer[ADC_BUFFER_SIZE];
 volatile uint16_t adc_write_index = 0;
 
@@ -40,7 +42,7 @@ volatile uint16_t adc_write_index = 0;
  * - Continuous conversion mode
  * - DMA transfer on conversion complete
  */
-void ADC_Init(void)
+void adc_init(void)
 {
     /* Enable clocks */
     RCC_AHBENR |= (1 << 0);   /* Enable GPIOA clock */
@@ -83,7 +85,7 @@ void ADC_Init(void)
  * - DMA1 Channel 1 for ADC
  * - Circular mode for continuous sampling
  */
-void DMA_Init(void)
+void dma_init(void)
 {
     /* Disable DMA channel before configuration */
     DMA1_CCR1 &= ~(1 << 0);
@@ -119,54 +121,58 @@ void DMA_Init(void)
  * - Continuous conversion mode
  * - DMA transfers enabled
  */
-void ADC_Start(void)
-{
-    /* Initialize DMA first */
-    DMA_Init();
 
-    /* Start continuous conversions */
-    ADC_CR |= (1 << 2);       /* ADSTART = 1 (start conversion sequence) */
+void adc_start(void)
+{
+	dma_init();
+
+	/* start continuous conversions: ADSTART = 1 (start conversion sequence) */
+
+	ADC_CR |= (1 << 2);       
 }
 
-/**
- * Stop ADC conversions
- */
-void ADC_Stop(void)
-{
-    /* Stop conversions */
-    ADC_CR |= (1 << 4);       /* ADSTP = 1 (stop conversion) */
-    while (ADC_CR & (1 << 4));  /* Wait for stop to complete */
+/* stop ADC conversions */
 
-    /* Disable ADC */
-    ADC_CR &= ~(1 << 0);      /* ADEN = 0 */
+void adc_stop(void)
+{
+	/* ADSTP = 1 (stop conversion), wait for stop complete */
+
+	ADC_CR |= (1 << 4);       
+
+	while (ADC_CR & (1 << 4));
+
+	/* disable ADC */
+
+	ADC_CR &= ~(1 << 0);      /* ADEN = 0 */
 }
 
-/**
+/*
  * Get most recent ADC sample
- * - Safe for multi-threaded access
+ * Safe for multi-threaded access
  */
-uint16_t ADC_GetSample(void)
+
+uint16_t adc_getsample(void)
 {
-    uint16_t index = (adc_write_index > 0) ? adc_write_index - 1 : ADC_BUFFER_SIZE - 1;
-    return adc_buffer[index];
+	uint16_t index = (adc_write_index > 0) ? adc_write_index - 1 : ADC_BUFFER_SIZE - 1;
+
+	return adc_buffer[index];
 }
 
-/**
+/*
  * Get DMA transfer count (for monitoring circular buffer position)
- * - Returns number of remaining transfers in current cycle
+ * Returns number of remaining transfers in current cycle
  */
-uint16_t ADC_GetDMACount(void)
+
+uint16_t adc_get_dma_count(void)
 {
     return DMA1_CNDTR1;
 }
 
-/**
- * Check if ADC buffer has new data
- * - Call this in your main loop to process new samples
- */
-uint16_t ADC_GetBufferPosition(void)
+/* check if ADC buffer has new data */
+
+uint16_t adc_get_buffer_position(void)
 {
-    uint16_t remaining = ADC_GetDMACount();
+    uint16_t remaining = adc_get_dma_count();
     uint16_t current_pos = ADC_BUFFER_SIZE - remaining;
     return current_pos;
 }
