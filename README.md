@@ -4,5 +4,9 @@ Embedded Systems Software Projects
 
 ## Projects
 
-* AX.25 Decoder
-* MCS-51 Temperature Sensor
+* AX.25 decoder
+* MCS-51 temperature sensor
+* Cross-platform embedded monitor
+* Bluetooth modem
+* APRS Beacon
+* IOT Weather Station
