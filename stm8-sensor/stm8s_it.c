@@ -29,6 +29,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm8s_it.h"
+#include "command.h"
+#include "systick.h"
 
 /** @addtogroup Template_Project
   * @{
@@ -406,9 +408,10 @@ INTERRUPT_HANDLER(I2C_IRQHandler, 19)
   */
  INTERRUPT_HANDLER(UART2_RX_IRQHandler, 21)
  {
-    /* In order to detect unexpected events during development,
-       it is recommended to set a breakpoint on the following instruction.
-    */
+	/* reading DR automatically clears RXNE flag */
+
+	if (UART2->SR & UART2_SR_RXNE)
+		cmd_buf = UART2->DR;  
  }
 #endif /* (STM8S105) || (STM8AF626x) */
 
@@ -486,9 +489,14 @@ INTERRUPT_HANDLER(TIM6_UPD_OVF_TRG_IRQHandler, 23)
   */
  INTERRUPT_HANDLER(TIM4_UPD_OVF_IRQHandler, 23)
  {
-  /* In order to detect unexpected events during development,
-     it is recommended to set a breakpoint on the following instruction.
-  */
+	if (TIM4->SR1 & TIM4_SR1_UIF) {
+        
+		ms_ticks++;
+		
+		/* Clear the flag so the ISR can exit */
+        
+		TIM4->SR1 &= ~TIM4_SR1_UIF; 
+	}
  }
 #endif /* (STM8S903) || (STM8AF622x)*/
 

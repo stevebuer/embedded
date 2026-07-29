@@ -9,12 +9,14 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include "command.h"
+#include "systick.h"
 
 #define USER_STACK_SIZE 8
 
 /* vars */
 
-extern char cmd_buf;
+volatile char cmd_buf = 0;
 
 static uint8_t arg_stack[USER_STACK_SIZE];
 
@@ -88,7 +90,14 @@ static void stack_pop()
 
 char *format_integer(uint8_t n)
 {
-	return NULL;
+	return n;
+}
+
+/* print systick */
+
+void print_systick()
+{
+	printf("systick: %d", get_ticks());
 }
 
 /* called from main() */
@@ -103,6 +112,10 @@ void process_cmd()
 
 		case 'd':
 			stack_dup();
+			break;
+
+		case 't':
+			print_systick();
 			break;
 
 		case '0': case '1': case '2': case '3': case '4':
