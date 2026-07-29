@@ -3,5 +3,7 @@
 
 volatile extern char cmd_buf;
 void process_cmd(void);
+void init_cmd(void);
+void Toggle(void);
 
 #endif

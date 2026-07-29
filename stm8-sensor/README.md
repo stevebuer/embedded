@@ -2,7 +2,14 @@
 
 Measure temperature and humidity via i2c sensor.
 
-MCU: STM8S105
+Board: STM8S-DISCOVERY
+
+MCU: STM8S105 (16 Mhz, 32 KB Flash, 2 KB RAM, 1 KB EEPROM)
+
+## Peripherals
+
+* Touch Sensor
+* User LED (Green): Port D, Pin 0
 
 ## Toolchain
 

@@ -29,6 +29,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm8s.h"
 #include "stm8s_it.h"    /* SDCC patch: required by SDCC for interrupts */
+#include "command.h"
 
 /* Private defines -----------------------------------------------------------*/
 #define TX_BUF_SIZE 64
@@ -37,12 +38,14 @@
 /* Private variables -----------------------------------------------------------*/
 uint8_t TxBuffer[TX_BUF_SIZE];
 uint8_t TxCounter = 0;
+volatile uint32_t ms_ticks = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 static void CLK_Config(void);
 static void UART_Config(void);
 static void GPIO_Config(void);
 static void I2C_Config(void);
+static void Systick_Init(void);
 static uint8_t I2C_ReadSensor(void);
 
 /* Private functions ---------------------------------------------------------*/
@@ -61,19 +64,18 @@ void main(void)
   /* I2C configuration -----------------------------------------*/
   I2C_Config();  
 
+  __asm__("rim\n");
+
+  init_cmd();
+
   /* Infinite loop */
   while (1)
   {
-   
-        /* Wait until end of transmit */
-        while (UART2_GetFlagStatus(UART2_FLAG_TXE) == RESET)
-        {
-        }
+	if (cmd_buf != 0)
+		process_cmd();
 
-        /* Write one byte in the UART2 Transmit Data Register */
-        UART2_SendData8(TxBuffer[TxCounter++]);
+	// power save or sleep? systick wait?
   }
-  
 }
 
 /**
@@ -83,20 +85,18 @@ void main(void)
   */
 static void CLK_Config(void)
 {
-    /* Initialization of the clock */
-    /* Clock divider to HSI/1 */
     CLK_HSIPrescalerConfig(CLK_PRESCALER_HSIDIV1);
 }
 
 /**
-  * @brief  Configure UART1 Tx pin as Output open-drain high-impedance level 
+  * @brief  Configure GPIOD Pin 0 (Green LED)
   * @param  None
   * @retval None
   */
 static void GPIO_Config(void)
 {
-    /* Set PA5 as Output open-drain high-impedance level (UART1_Tx)*/
-    GPIO_Init(GPIOA, GPIO_PIN_5, GPIO_MODE_OUT_OD_HIZ_FAST);
+    GPIO_DeInit(GPIOD);
+    GPIO_Init(GPIOD, GPIO_PIN_0, GPIO_MODE_OUT_PP_LOW_FAST);
 }
 
 /**
@@ -114,11 +114,22 @@ static void UART_Config(void)
         - Transmit/Receive enabled
   */
   UART2_DeInit();
-  UART2_Init((uint32_t)9600, UART2_WORDLENGTH_8D, UART2_STOPBITS_1, UART2_PARITY_NO,
-              UART2_SYNCMODE_CLOCK_DISABLE, UART2_MODE_TXRX_ENABLE);
+  UART2_Init((uint32_t) 9600, UART2_WORDLENGTH_8D, UART2_STOPBITS_1, UART2_PARITY_NO, UART2_SYNCMODE_CLOCK_DISABLE, UART2_MODE_TXRX_ENABLE);
+}
 
-  /* Enable UART2 Half Duplex Mode*/
-  // UART2_HalfDuplexCmd(ENABLE);
+int putchar(int c) 
+{
+    /* wait until Transmit Data Register is empty (TXE flag) */
+
+    while (!(UART2->SR & UART2_SR_TXE));
+    
+    /* write character to Data Register and avoid race */
+
+    __asm__("sim\n");
+    UART2->DR = (unsigned char) c;
+    __asm__("rim\n");
+    
+    return c;
 }
 
 /**
@@ -138,6 +149,43 @@ static void I2C_Config(void)
 static uint8_t I2C_ReadSensor(void)
 {
 	return 255;
+}
+
+static void Systick_Init()
+{
+	CLK->PCKENR1 |= CLK_PCKENR1_TIM4;  // Enable TIM4 peripheral clock
+	TIM4->PSCR = 7;                    // Prescaler = 128 (16MHz / 128 = 125kHz)
+	TIM4->ARR = 124;                   // Count 0 to 124 (125 steps = 1ms)
+	TIM4->EGR |= TIM4_EGR_UG;          // Re-initialize counter & generate update event
+	TIM4->IER |= TIM4_IER_UIE;         // Enable Update Interrupt
+	TIM4->CR1 |= TIM4_CR1_CEN;         // Enable TIM4 counter
+}
+
+uint32_t get_ticks(void) 
+{
+	uint32_t ticks;
+    
+	__asm__("sim\n");  // Disable interrupts globally
+	ticks = ms_ticks;  // Copy the 32-bit value seamlessly
+	__asm__("rim\n");  // Re-enable interrupts instantly
+    
+	return ticks;
+}
+
+/**
+  ******************************************************************************
+  * @brief Toggle PD0 (Led LD1)
+  * @par Parameters:
+  * None
+  * @retval void None
+  * @par Required preconditions:
+  * None
+  ******************************************************************************
+  */
+
+void Toggle(void)
+{
+	GPIO_WriteReverse(GPIOD, GPIO_PIN_0);
 }
 
 #ifdef USE_FULL_ASSERT

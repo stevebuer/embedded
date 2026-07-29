@@ -88,19 +88,32 @@ static void stack_pop()
 
 /* format a char */
 
-char *format_integer(uint8_t n)
+static char * format_integer(uint8_t n)
 {
-	return n;
+	n++;
+	return "";
 }
 
 /* print systick */
 
-void print_systick()
+static void print_systick()
 {
 	printf("systick: %d", get_ticks());
 }
 
+/* led control: arg */
+
+static void led_control()
+{
+	// Turn LED on/off or set blink rate. Arg on stack	
+}
+
 /* called from main() */
+
+void init_cmd()
+{
+	puts("ver 0.1 init\n");
+}
 
 void process_cmd()
 {
@@ -112,6 +125,11 @@ void process_cmd()
 
 		case 'd':
 			stack_dup();
+			break;
+
+		case 'l':
+			// led_control();
+			Toggle();
 			break;
 
 		case 't':
