@@ -1,0 +1,70 @@
+# Host-based AX.25 Decoder Test Build
+# Compiles the decoder on x86 for testing with WAV files
+# Uses libsndfile for audio file I/O
+
+CC = gcc
+CFLAGS = -Wall -Wextra -O2 -g -I../inc -I.
+LDFLAGS = -lm -lsndfile
+
+# Source files
+# Core decoder logic (portable)
+DECODER_SRC = ../src/decoder.c ../src/goertzel.c ../src/tnc2.c
+
+# Host stubs (replace embedded hardware dependencies)
+STUB_SRC = input-wav.c serial_stub.c adc_stub.c buttons_stub.c
+
+# Object files
+DECODER_OBJ = $(DECODER_SRC:.c=.o)
+STUB_OBJ = $(STUB_SRC:.c=.o)
+ALL_OBJ = $(DECODER_OBJ) $(STUB_OBJ)
+
+# Output
+TARGET = ax25-decoder-host
+
+.PHONY: all clean
+
+all: $(TARGET)
+
+$(TARGET): $(ALL_OBJ)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+	@echo "Built: $@"
+	@echo "Usage: ./$@ <input.wav>"
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+../src/%.o: ../src/%.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+clean:
+	rm -f $(ALL_OBJ) $(TARGET)
+	@echo "Cleaned"
+
+clean-diagrams:
+	rm -f ../docs/*.svg ../docs/*.png
+	@echo "Cleaned diagrams"
+
+# Generate documentation diagrams (requires graphviz)
+diagrams:
+	@if command -v dot >/dev/null 2>&1; then \
+		cd ../docs && \
+		dot -Tsvg pipeline_diagram.gv -o pipeline_diagram.svg && \
+		dot -Tpng pipeline_diagram.gv -o pipeline_diagram.png && \
+		dot -Tsvg architecture_diagram.gv -o architecture_diagram.svg && \
+		dot -Tpng architecture_diagram.gv -o architecture_diagram.png && \
+		dot -Tsvg signal_flow_diagram.gv -o signal_flow_diagram.svg && \
+		dot -Tpng signal_flow_diagram.gv -o signal_flow_diagram.png && \
+		echo "✓ Generated all diagrams (SVG and PNG)"; \
+	else \
+		echo "Error: graphviz (dot) not installed. Install with: sudo apt install graphviz"; \
+		exit 1; \
+	fi
+
+# Test with example
+test-example:
+	@if [ ! -f "../test_audio.wav" ]; then \
+		echo "Note: No test_audio.wav found. Create one first."; \
+		echo "Usage: ./$(TARGET) <your_wav_file.wav>"; \
+	else \
+		./$(TARGET) ../test_audio.wav; \
+	fi
