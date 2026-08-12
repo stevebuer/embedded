@@ -2,6 +2,8 @@
  * Forth dictionary and program token storage
  */
 
+#include <stdint.h>
+
 /* on sdcc declare this as code storage: todo (saves 1 byte) */
 
 typedef void (*word_fn)(void);
@@ -15,18 +17,14 @@ typedef struct {
 
 } word_entry_t;
 
-const word_entry_t words[] = { 
-
-	{"DUP", NULL },
-	{"+", NULL },
-	{NULL, NULL}
-};
+extern const word_entry_t words[];
 
 #define NWORDS (sizeof(words) / sizeof(word_entry_t))
 
 /* ---- token / dictionary types ---- */
 
 typedef enum {
+	TOK_BEGIN,
 	TOK_WORD,    /* call a dictionary function          */
 	TOK_LIT,     /* push a literal onto the data stack   */
 	TOK_AGAIN,   /* unconditional jump back to begin_ip  */

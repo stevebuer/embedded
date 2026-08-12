@@ -1,20 +1,28 @@
 /*
- * micro-monitor main()
+ * Steve's micro-monitor
  */
 
 #include <stdio.h>
 #include "machine.h"
 
-void main()
+int main(void)
 {
-	// init_system(); // system and systick setup
+	char *line = NULL;
 
-	// init_serial();
+	init_system();
 
-	printf("micro-monitor v0.1"); // put this at end of init serial
+	init_serial();
+
+	init_command();
 
 	while (1) {
 
+		putchar('>'); putchar(' ');
 
+		line = readline_serial();
+
+		process_command(line);
 	}
+
+	return 0;
 }

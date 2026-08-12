@@ -1,8 +1,22 @@
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "dictionary.h"
+
 #define MAXTOK 64
+
 token_t prog[MAXTOK];   // pre-tokenized program, built once
 int ntok;
 
-void run(void) {
+const word_entry_t words[] = {
+    {"DUP", NULL},
+    {"+", NULL},
+    {NULL, NULL}
+};
+
+void run(void)
+{
     int ip = 0;
     int begin_ip = -1;          // only need one, no nesting for blink
     while (ip < ntok) {
@@ -13,43 +27,11 @@ void run(void) {
         } else if (t.type == TOK_AGAIN) {
             ip = begin_ip;      // jump back — the whole "compiler"
         } else {
-            dispatch(t);        // your existing linear-scan word lookup
+            /* dispatch(t); */        // your existing linear-scan word lookup
             ip++;
         }
     }
 }
-
-/* ---- token / dictionary types ---- */
-
-typedef enum {
-    TOK_WORD,    /* call a dictionary function          */
-    TOK_LIT,     /* push a literal onto the data stack   */
-    TOK_AGAIN,   /* unconditional jump back to begin_ip  */
-    TOK_ZEXIT,   /* pop flag; if true, halt program      */
-    TOK_JUMP     /* unconditional halt (plain EXIT)      */
-} tok_type_t;
-
-typedef struct {
-    tok_type_t type;
-    union {
-        uint8_t  word_idx;      /* TOK_WORD  */
-        int16_t  lit;           /* TOK_LIT   */
-        int16_t  jump_target;   /* TOK_AGAIN */
-    } u;
-} token_t;
-
-typedef void (*word_fn)(void);
-
-typedef struct {
-    const char *name;
-    word_fn     fn;
-} word_entry_t;
-
-/* provided elsewhere in your build */
-extern const word_entry_t words[];
-extern const int          NWORDS;
-
-#define MAXTOK 64
 
 /* ---- tokenizer ---- */
 

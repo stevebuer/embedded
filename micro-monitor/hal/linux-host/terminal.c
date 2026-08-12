@@ -4,10 +4,22 @@
  */
 
 #include <stdio.h>
+#include <unistd.h>
 
-/* our 'serial console' is linux vty */
+#define MAXLINE 32
+
+static char linebuf[MAXLINE];
+
+/* our 'serial console' is a linux vty */
 
 void init_serial()
 {
-	puts("micro-monitor v0.1\n");
+	puts(ttyname(0));
 }
+
+char *readline_serial()
+{
+	fgets(linebuf, sizeof(linebuf), stdin);
+
+	return linebuf;
+}	

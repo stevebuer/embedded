@@ -8,40 +8,13 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include "forth.h"
 
-#define MAXLINE 16
-#define USER_STACK_SIZE 8
-
-char linebuf[MAXLINE];
-
-const char *prompt = "cmd> ";
-
-/* user stack for arg passing: KISS */
-
-int16_t ustack[USER_STACK_SIZE];
-int8_t usp = 0;
-
-void ustack_push(int16_t n)
-{
-	ustack[usp] = n;
-	usp++;
-}
-
-int16_t ustack_pop()
-{
-	usp--;
-	return ustack[usp + 1];
-}
-
-void ustack_clr()
-{
-	usp = 0;
-}
-	
+// const char *prompt = "> ";
 
 /* mix of stack and argument commands? */
 
-void usage()
+static void usage()
 {
 	printf("micro-mon: v0.1");
 	printf("j <addr>");		/* jump to address */
@@ -51,6 +24,19 @@ void usage()
 	printf("c");			/* clear user stack */
 	printf("s");			/* print stack */
 	printf("+ (n n -- n)");		/* add two numbers on user stack */
+}
+
+void init_command()
+{
+	puts("micro-mon: v0.1");
+}
+
+void process_command(char *s)
+{
+	if (*s == 'T' && *++s == 'E')
+		puts("ok");
+	else
+		puts("err");
 }
 
 /*
@@ -71,12 +57,3 @@ void repl()
 }
 */
 
-// Forth-like commands
-
-void cmd_plus()
-{
-	int n1 = ustack_pop();
-	int n2 = ustack_pop();
-
-	return ustack_push(n1 + n2);
-}

@@ -35,3 +35,10 @@ void do_c_fetch(void)
     	else 
 		puts("ERR\n");
 }
+
+/* create shared mem segment and other virtual machine init */
+
+void init_system(void)
+{
+	puts("1K RAM");
+}

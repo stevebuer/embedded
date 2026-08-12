@@ -17,39 +17,38 @@
 
 /* user stack */
 
-int16_t ustack[USER_STACK_SIZE];
+uint16_t ustack[USER_STACK_SIZE];
 int8_t usp = 0;
 
 /* command execution */
 
-void ustack_push(int16_t n)
+void ustack_push(uint16_t n)
 {
 	ustack[usp] = n;
 	usp++;
 }
 
-int16_t ustack_pop()
+uint16_t ustack_pop(void)
 {
 	usp--;
 	return ustack[usp + 1];
 }
 
-void ustack_clr()
+void ustack_clr(void)
 {
 	usp = 0;
 }
 
-void ustack_dup()
+void ustack_dup(void)
 {
 	ustack_push(ustack[usp - 1]);
 }
 
-void cmd_plus()
+void cmd_plus(void)
 {
-	int n1 = ustack_pop();
-	int n2 = ustack_pop();
-
-	return ustack_push(n1 + n2);
+	uint16_t n1 = ustack_pop();
+	uint16_t n2 = ustack_pop();
+	ustack_push((uint16_t)(n1 + n2));
 }
 
 /* usage */

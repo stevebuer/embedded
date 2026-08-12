@@ -4,6 +4,9 @@
 
 #include <stdint.h>
 #include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
+#include <errno.h>
 #include <ncurses.h>
 #include <stddef.h>
 #include <sys/mman.h>
@@ -11,7 +14,7 @@
 #include <fcntl.h>
 
 #include "dictionary.h"
-#include "shared_memory.h"
+#include "memory.h"
 
 /* print token name string */
 
@@ -47,7 +50,15 @@ const char *token_name(token_t t)
 
 int main(int argc, char **argv[])
 {
-	int fd = shm_open(SHM_NAME, O_RDONLY, 0666);
+	int fd;
+
+	fd = shm_open(SHM_NAME, O_RDONLY, 0666);
+
+	if (fd == -1) {
+
+		fprintf(stderr, "Error opening shared memory '%s': %s\n", SHM_NAME, strerror(errno));
+		exit(EXIT_FAILURE); 
+	}
 
 	shared_state_t *st = mmap(NULL, sizeof(*st), PROT_READ, MAP_SHARED, fd, 0);
 
@@ -68,4 +79,5 @@ int main(int argc, char **argv[])
 		refresh();
 
 		usleep(50000);   // ~20fps poll
+	}
 }
