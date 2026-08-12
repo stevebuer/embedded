@@ -14,5 +14,6 @@ typedef struct {
 	token_t  prog[64];
 	int      ntok;
 	int      begin_ip;
+	uint8_t	 mem[MEM_SIZE];
 
 } shared_state_t;

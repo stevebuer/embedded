@@ -12,9 +12,21 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <ctype.h>
 
 #include "dictionary.h"
 #include "memory.h"
+
+/* memory display */
+
+#define MEM_SIZE 1024
+#define MEM_COLS 16
+#define MEM_ROWS (MEM_SIZE / MEM_COLS)     /* 1024 / 16 = 64 rows total */
+#define MEM_PANE_X 45
+#define MEM_PANE_ROWS 16                   /* rows visible per page */
+#define MEM_PAGES ((MEM_ROWS + MEM_PANE_ROWS - 1) / MEM_PANE_ROWS)  /* = 4 */
+
+int mem_page = 0;   /* 0..3 */
 
 /* print token name string */
 
@@ -48,7 +60,7 @@ const char *token_name(token_t t)
 
 /* main */
 
-int main(int argc, char **argv[])
+int main(int argc, char *argv[])
 {
 	int fd;
 
@@ -64,7 +76,16 @@ int main(int argc, char **argv[])
 
 	initscr();
 
+	nodelay(stdscr, TRUE);   /* call once after initscr() */
+
 	while (1) {
+
+		int ch = getch();
+
+		if (ch == 'm')
+			mem_page = (mem_page + 1) % MEM_PAGES;
+		else if (ch == 'q')
+			break;
 
 		clear();
 		
@@ -75,9 +96,43 @@ int main(int argc, char **argv[])
 
     		for (int i = 0; i < st->dsp; i++)
 			mvprintw(2, 30 + i*6, "%d", st->dstack[i]);
+
+		/* ---- memory pane ---- */
+
+		int row_start = mem_page * MEM_PANE_ROWS;
+
+		mvprintw(0, MEM_PANE_X, "MEM page %d/%d  ('m' next, 'q' quit)", mem_page + 1, MEM_PAGES);
+
+		for (int row = 0; row < MEM_PANE_ROWS && (row_start + row) < MEM_ROWS; row++) {
+
+			int addr = (row_start + row) * MEM_COLS;
+			int y = 2 + row;
+			int x = MEM_PANE_X;
+
+			mvprintw(y, x, "%04d:", addr);   /* back to 4 digits, max address is 1023 */
+			x += 6;
+
+			for (int col = 0; col < MEM_COLS; col++) {
+
+				uint8_t byte = st->mem[addr + col];
+				mvprintw(y, x, "%02X", byte);
+				x += 3;
+			}
+
+			x += 1;
+
+			for (int col = 0; col < MEM_COLS; col++) {
+
+				uint8_t byte = st->mem[addr + col];
+				mvaddch(y, x, isprint(byte) ? byte : '.');
+				x++;
+			}
+		}
 		
 		refresh();
 
 		usleep(50000);   // ~20fps poll
 	}
+
+	endwin();
 }
