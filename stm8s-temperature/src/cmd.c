@@ -31,7 +31,7 @@ static void usage(void)
 	uart_puts("  h|?           help\r\n");
 	uart_puts("  i             scan i2c bus\r\n");
 	uart_puts("  t             read AHT20\r\n");
-	uart_puts("  set debug     toggle debug mode\r\n");
+	uart_puts("  s d           set debug mode\r\n");
 	uart_puts("  r <a> <r>     i2c read reg (hex bytes)\r\n");
 	uart_puts("  w <a> <r> <v> i2c write reg (hex bytes)\r\n");
 	uart_puts("  e <addr> <v>  write byte to stm8 data EEPROM\r\n");
@@ -158,9 +158,8 @@ static void exec_line(char* line)
 		return;
 	}
 
-	if (cmd[0] == 's' && cmd[1] == 'e' && cmd[2] == 't' && cmd[3] == '\0') {
-		if (args[0] == 'd' && args[1] == 'e' && args[2] == 'b' &&
-			args[3] == 'u' && args[4] == 'g' && args[5] == '\0') {
+	if (cmd[0] == 's' && cmd[1] == '\0') {
+		if (args[0] == 'd' && args[1] == '\0') {
 			cmd_debug = !cmd_debug;
 			uart_puts("debug=");
 			uart_puthex8(cmd_debug);
