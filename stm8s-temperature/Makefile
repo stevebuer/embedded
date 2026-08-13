@@ -24,7 +24,12 @@ SPL_SOURCE_NAMES := \
 	stm8s_clk_HSIPrescalerConfig.c \
 	stm8s_clk_PeripheralClockConfig.c \
 	stm8s_clk_private.c \
+	stm8s_awu_Cmd.c \
+	stm8s_awu_Init.c \
+	stm8s_awu_private.c \
 	stm8s_gpio_Init.c \
+	stm8s_gpio_WriteHigh.c \
+	stm8s_gpio_WriteLow.c \
 	stm8s_uart1_DeInit.c \
 	stm8s_uart1_Init.c \
 	stm8s_uart1_GetFlagStatus.c \

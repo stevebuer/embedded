@@ -7,8 +7,11 @@
 #include "cmd.h"
 #include "i2c_bus.h"
 #include "aht20.h"
+#include "led.h"
 
 extern aht20_ops_t aht20_ops;
+
+uint8_t cmd_debug = 0;
 
 #define CMD_MAXLINE 32
 
@@ -28,6 +31,7 @@ static void usage(void)
 	uart_puts("  h|?           help\r\n");
 	uart_puts("  i             scan i2c bus\r\n");
 	uart_puts("  t             read AHT20\r\n");
+	uart_puts("  set debug     toggle debug mode\r\n");
 	uart_puts("  r <a> <r>     i2c read reg (hex bytes)\r\n");
 	uart_puts("  w <a> <r> <v> i2c write reg (hex bytes)\r\n");
 	uart_puts("  e <addr> <v>  write byte to stm8 data EEPROM\r\n");
@@ -115,6 +119,7 @@ void cmd_auto_report(void)
 	uart_puts(" T=0x");
 	uart_puthex32((unsigned long)raw_temperature);
 	uart_puts("\r\n");
+	led_sensor_read_blink();
 }
 
 static void exec_line(char* line)
@@ -151,6 +156,17 @@ static void exec_line(char* line)
 	if (cmd[0] == 't' && cmd[1] == '\0') {
 		cmd_auto_report();
 		return;
+	}
+
+	if (cmd[0] == 's' && cmd[1] == 'e' && cmd[2] == 't' && cmd[3] == '\0') {
+		if (args[0] == 'd' && args[1] == 'e' && args[2] == 'b' &&
+			args[3] == 'u' && args[4] == 'g' && args[5] == '\0') {
+			cmd_debug = !cmd_debug;
+			uart_puts("debug=");
+			uart_puthex8(cmd_debug);
+			uart_puts("\r\n");
+			return;
+		}
 	}
 
 	if (cmd[0] == 'r' && cmd[1] == '\0') {

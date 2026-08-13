@@ -7,12 +7,15 @@
 #include "cmd.h"
 #include "i2c_bus.h"
 #include "aht20.h"
+#include "power.h"
+#include "led.h"
 
 /* i2c interface to aht20 driver */
 
 aht20_ops_t aht20_ops = { i2c_write, i2c_read, i2c_delay, false, 0 };
 
 #define EEPROM_AUTO_INTERVAL 0x4000UL
+#define EEPROM_POWER_SAVE    0x4002UL
 
 static void clock_init(void) 
 {
@@ -24,21 +27,19 @@ static void clock_init(void)
 
 static void gpio_init(void)
 {
-	/*
-	 * Board LED is on PB5, which is also I2C SDA on STM8S003.
-	 * Avoid configuring PB5 as push-pull when using I2C.
-	 */
+	led_init();
 }
 
 static void startup_led_blink(void)
 {
-	/* PB5 LED conflicts with SDA; no blink while using I2C on PB5. */
+	led_startup_blink();
 }
 
 int main(void) 
 {
-	uint8_t elapsed_minutes = 0;
+	uint16_t elapsed_seconds = 0;
 	uint8_t auto_interval;
+	uint8_t power_save;
 
 	clock_init();
 
@@ -57,14 +58,23 @@ int main(void)
 		cmd_poll();
 
 		auto_interval = FLASH_ReadByte(EEPROM_AUTO_INTERVAL);
-		if (auto_interval != 0) {
-			i2c_delay(60000UL);
-			if (++elapsed_minutes >= auto_interval) {
+		power_save = FLASH_ReadByte(EEPROM_POWER_SAVE);
+		if (auto_interval != 0 && !cmd_debug) {
+			if (power_save != 0) {
+				power_sleep_30s();
+				cmd_poll();
+				elapsed_seconds += 30U;
+			} else {
+				i2c_delay(1000UL);
+				elapsed_seconds++;
+			}
+
+			if (elapsed_seconds >= ((uint16_t)auto_interval * 60U)) {
 				cmd_auto_report();
-				elapsed_minutes = 0;
+				elapsed_seconds = 0;
 			}
 		} else {
-			elapsed_minutes = 0;
+			 elapsed_seconds = 0;
 			i2c_delay(1000UL);
 		}
     	}
