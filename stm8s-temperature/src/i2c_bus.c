@@ -171,8 +171,9 @@ error:
 
 void i2c_delay(uint32_t ms)
 {
+	/* loop body is 12 cycles/iter at -opt-code-size; 1333 iters ~= 1ms @ 16MHz HSI */
 	while (ms--) {
-		for (volatile uint16_t count = 0; count < 4000; count++) {
+		for (volatile uint16_t count = 0; count < 1333; count++) {
 		}
 	}
 }

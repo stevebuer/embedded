@@ -1,1 +1,3 @@
 *.o
+stm8s-temperature/.env
+

@@ -34,6 +34,7 @@ static void usage(void)
 	uart_puts("  s d           set debug mode\r\n");
 	uart_puts("  r <a> <r>     i2c read reg (hex bytes)\r\n");
 	uart_puts("  w <a> <r> <v> i2c write reg (hex bytes)\r\n");
+	uart_puts("  x <addr>      read byte at memory address\r\n");
 	uart_puts("  e <addr> <v>  write byte to stm8 data EEPROM\r\n");
 }
 
@@ -63,10 +64,10 @@ static char *next_field(char** p)
 	return start;
 }
 
-static unsigned char parse_hex(const char *s, int16_t *out)
+static unsigned char parse_hex(const char *s, uint16_t *out)
 {
 	char c;
-	int16_t n = 0;
+	uint16_t n = 0;
 
 	if (*s == '\0')
 		return 0;
@@ -76,11 +77,11 @@ static unsigned char parse_hex(const char *s, int16_t *out)
 		n <<= 4;
 
 		if (c >= '0' && c <= '9')
-			n |= (int16_t)(c - '0');
+			n |= (uint16_t)(c - '0');
 		else if (c >= 'a' && c <= 'f')
-			n |= (int16_t)(c - 'a' + 10);
+			n |= (uint16_t)(c - 'a' + 10);
 		else if (c >= 'A' && c <= 'F')
-			n |= (int16_t)(c - 'A' + 10);
+			n |= (uint16_t)(c - 'A' + 10);
 		else
 			return 0;
 	}
@@ -126,7 +127,7 @@ static void exec_line(char* line)
 {
 	char *args = 0, *a1, *a2, *a3, *cmd = line;
 	unsigned char i2c_value = 0, ok = 0, rv = 0;
-	int16_t a = 0, r = 0, v = 0, n = 0;
+	uint16_t a = 0, r = 0, v = 0, n = 0;
 
 	while (*cmd == ' ')
 		cmd++;
@@ -207,6 +208,21 @@ static void exec_line(char* line)
 		else 
 			uart_puts("ERR: i2c no-ack\r\n");
 		
+		return;
+	}
+
+	if (cmd[0] == 'x' && cmd[1] == '\0') {
+
+		a1 = next_field(&args);
+
+		if (!a1 || !parse_hex(a1, &a))
+			return uart_puts("ERR: usage x <addr>\r\n");
+
+		/* stm8 has a unified address space, so a plain dereference reads
+		 * ram, peripherals, eeprom or flash alike */
+		uart_puts("  0x");
+		uart_puthex8(*(volatile uint8_t *)a);
+		uart_puts("\r\n");
 		return;
 	}
 

@@ -65,7 +65,12 @@ int main(void)
 				cmd_poll();
 				elapsed_seconds += 30U;
 			} else {
-				i2c_delay(1000UL);
+				/* poll the uart between short delay slices instead of
+				 * blocking for a full second so the terminal stays responsive */
+				for (uint8_t slice = 0; slice < 10U; slice++) {
+					i2c_delay(100UL);
+					cmd_poll();
+				}
 				elapsed_seconds++;
 			}
 
@@ -74,8 +79,11 @@ int main(void)
 				elapsed_seconds = 0;
 			}
 		} else {
-			 elapsed_seconds = 0;
-			i2c_delay(1000UL);
+			elapsed_seconds = 0;
+			for (uint8_t slice = 0; slice < 10U; slice++) {
+				i2c_delay(100UL);
+				cmd_poll();
+			}
 		}
     	}
 }
