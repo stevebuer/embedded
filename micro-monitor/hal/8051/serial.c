@@ -1,8 +1,9 @@
 /*
- * MCS-51 serial routines
+ * Micro-Monitor: MCS-51 serial routines
  *
  * Steve Buer
  * Olympic College
+ * July 2026
  *
  */
 

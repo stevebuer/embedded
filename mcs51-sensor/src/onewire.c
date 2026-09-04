@@ -20,7 +20,7 @@
 
 void init_onewire(void)
 {
-	puts("Onewire pin init: P1_0");
+	puts("onewire bus: P1.0");
     	DQ = 1;
 }
 
